@@ -1,29 +1,105 @@
-name: CI
+name: Test
 
 on:
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-
-concurrency:
-  group: Release
-  cancel-in-progress: false
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
-  format:
-    uses: ./.github/workflows/check-formatting.yml
-  lint:
-    uses: ./.github/workflows/lint.yml
-  test:
-    uses: ./.github/workflows/test.yml
+  run:
+    runs-on: ${{ matrix.os }}
 
-  npm:
-    if: github.ref == 'refs/heads/main'
-    needs: [format, lint, test]
-    uses: ./.github/workflows/publish.yml
-    secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - node: 12
+            os: ubuntu-latest
+            pnpm: 6
+          - node: 12
+            os: macos-latest
+            pnpm: 6
+          - node: 12
+            os: windows-latest
+            pnpm: 6
+
+          - node: 14
+            os: ubuntu-latest
+            pnpm: 7
+          - node: 14
+            os: macos-latest
+            pnpm: 7
+          - node: 14
+            os: windows-latest
+            pnpm: 7
+
+          - node: 16
+            os: ubuntu-latest
+            pnpm: 8
+          - node: 16
+            os: macos-latest
+            pnpm: 8
+          - node: 16
+            os: windows-latest
+            pnpm: 8
+
+          - node: 18
+            os: ubuntu-latest
+            pnpm: 9
+          - node: 18
+            os: macos-latest
+            pnpm: 9
+          - node: 18
+            os: windows-latest
+            pnpm: 9
+
+          - node: 20
+            os: ubuntu-latest
+            pnpm: 9
+          - node: 20
+            os: macos-latest
+            pnpm: 9
+          - node: 20
+            os: windows-latest
+            pnpm: 9
+
+          - node: 22
+            os: ubuntu-latest
+            pnpm: 9
+          - node: 22
+            os: macos-latest
+            pnpm: 9
+          - node: 22
+            os: windows-latest
+            pnpm: 9
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install pnpm ${{ matrix.pnpm }}
+        run: |
+          if node -v | grep -E '^v1[6-9]|^v20|^v22' >/dev/null; then
+            corepack enable
+            corepack prepare pnpm@${{ matrix.pnpm }} --activate
+          else
+            npm i -g pnpm@${{ matrix.pnpm }}
+          fi
+          pnpm -v
+
+      - name: Install dependencies
+        run: |
+          if [ ${{ matrix.pnpm }} -lt 9 ]; then
+            pnpm install --no-frozen-lockfile
+          else
+            pnpm install --frozen-lockfile
+          fi
+
+      - name: Run tests
+        run: pnpm run test
