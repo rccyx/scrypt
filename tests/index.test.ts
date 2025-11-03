@@ -4,7 +4,7 @@ import { hash, hashSync, verify, verifySync } from '../src/index';
 describe('hash', () => {
   it('should hash a plaintext password asynchronously', async () => {
     const plaintext = 'mySecurePassword123';
-    const result = await hash(plaintext);
+    const result = await hash({ plaintext });
 
     expect(result).toBeTypeOf('string');
     expect(result).toContain(':');
@@ -21,8 +21,8 @@ describe('hash', () => {
 
   it('should produce different hashes for the same password (random salt)', async () => {
     const plaintext = 'samePassword';
-    const hash1 = await hash(plaintext);
-    const hash2 = await hash(plaintext);
+    const hash1 = await hash({ plaintext });
+    const hash2 = await hash({ plaintext });
 
     expect(hash1).not.toBe(hash2);
     // Both should verify correctly
@@ -31,14 +31,14 @@ describe('hash', () => {
   });
 
   it('should handle empty strings', async () => {
-    const result = await hash('');
+    const result = await hash({ plaintext: '' });
     expect(result).toBeTypeOf('string');
     expect(result).toContain(':');
   });
 
   it('should handle special characters and unicode', async () => {
     const plaintext = 'p@ssw0rd! 🔐 中文 日本語';
-    const result = await hash(plaintext);
+    const result = await hash({ plaintext });
     expect(result).toBeTypeOf('string');
     const isValid = await verify({ hash: result, plaintext });
     expect(isValid).toBe(true);
@@ -46,7 +46,7 @@ describe('hash', () => {
 
   it('should handle very long passwords', async () => {
     const plaintext = 'a'.repeat(1000);
-    const result = await hash(plaintext);
+    const result = await hash({ plaintext });
     expect(result).toBeTypeOf('string');
     const isValid = await verify({ hash: result, plaintext });
     expect(isValid).toBe(true);
@@ -56,7 +56,7 @@ describe('hash', () => {
 describe('hashSync', () => {
   it('should hash a plaintext password synchronously', () => {
     const plaintext = 'mySecurePassword123';
-    const result = hashSync(plaintext);
+    const result = hashSync({ plaintext });
 
     expect(result).toBeTypeOf('string');
     expect(result).toContain(':');
@@ -73,8 +73,8 @@ describe('hashSync', () => {
 
   it('should produce different hashes for the same password (random salt)', () => {
     const plaintext = 'samePassword';
-    const hash1 = hashSync(plaintext);
-    const hash2 = hashSync(plaintext);
+    const hash1 = hashSync({ plaintext });
+    const hash2 = hashSync({ plaintext });
 
     expect(hash1).not.toBe(hash2);
     // Both should verify correctly
@@ -83,14 +83,14 @@ describe('hashSync', () => {
   });
 
   it('should handle empty strings', () => {
-    const result = hashSync('');
+    const result = hashSync({ plaintext: '' });
     expect(result).toBeTypeOf('string');
     expect(result).toContain(':');
   });
 
   it('should handle special characters and unicode', () => {
     const plaintext = 'p@ssw0rd! 🔐 中文 日本語';
-    const result = hashSync(plaintext);
+    const result = hashSync({ plaintext });
     expect(result).toBeTypeOf('string');
     const isValid = verifySync({ hash: result, plaintext });
     expect(isValid).toBe(true);
@@ -98,7 +98,7 @@ describe('hashSync', () => {
 
   it('should handle very long passwords', () => {
     const plaintext = 'a'.repeat(1000);
-    const result = hashSync(plaintext);
+    const result = hashSync({ plaintext });
     expect(result).toBeTypeOf('string');
     const isValid = verifySync({ hash: result, plaintext });
     expect(isValid).toBe(true);
@@ -108,7 +108,7 @@ describe('hashSync', () => {
 describe('verify', () => {
   it('should verify a correct password asynchronously', async () => {
     const plaintext = 'mySecurePassword';
-    const hashString = await hash(plaintext);
+    const hashString = await hash({ plaintext });
     const isValid = await verify({ hash: hashString, plaintext });
 
     expect(isValid).toBe(true);
@@ -117,7 +117,7 @@ describe('verify', () => {
   it('should reject an incorrect password asynchronously', async () => {
     const plaintext = 'mySecurePassword';
     const wrongPassword = 'wrongPassword';
-    const hashString = await hash(plaintext);
+    const hashString = await hash({ plaintext });
     const isValid = await verify({
       hash: hashString,
       plaintext: wrongPassword,
@@ -146,7 +146,7 @@ describe('verify', () => {
   });
 
   it('should handle empty string passwords', async () => {
-    const hashString = await hash('');
+    const hashString = await hash({ plaintext: '' });
     const isValid = await verify({ hash: hashString, plaintext: '' });
     expect(isValid).toBe(true);
 
@@ -159,7 +159,7 @@ describe('verify', () => {
 
   it('should verify the same hash multiple times consistently', async () => {
     const plaintext = 'consistentPassword';
-    const hashString = await hash(plaintext);
+    const hashString = await hash({ plaintext });
 
     for (let i = 0; i < 10; i++) {
       const isValid = await verify({ hash: hashString, plaintext });
@@ -171,7 +171,7 @@ describe('verify', () => {
 describe('verifySync', () => {
   it('should verify a correct password synchronously', () => {
     const plaintext = 'mySecurePassword';
-    const hashString = hashSync(plaintext);
+    const hashString = hashSync({ plaintext });
     const isValid = verifySync({ hash: hashString, plaintext });
 
     expect(isValid).toBe(true);
@@ -180,7 +180,7 @@ describe('verifySync', () => {
   it('should reject an incorrect password synchronously', () => {
     const plaintext = 'mySecurePassword';
     const wrongPassword = 'wrongPassword';
-    const hashString = hashSync(plaintext);
+    const hashString = hashSync({ plaintext });
     const isValid = verifySync({ hash: hashString, plaintext: wrongPassword });
 
     expect(isValid).toBe(false);
@@ -206,7 +206,7 @@ describe('verifySync', () => {
   });
 
   it('should handle empty string passwords', () => {
-    const hashString = hashSync('');
+    const hashString = hashSync({ plaintext: '' });
     const isValid = verifySync({ hash: hashString, plaintext: '' });
     expect(isValid).toBe(true);
 
@@ -219,7 +219,7 @@ describe('verifySync', () => {
 
   it('should verify the same hash multiple times consistently', () => {
     const plaintext = 'consistentPassword';
-    const hashString = hashSync(plaintext);
+    const hashString = hashSync({ plaintext });
 
     for (let i = 0; i < 10; i++) {
       const isValid = verifySync({ hash: hashString, plaintext });
@@ -231,7 +231,7 @@ describe('verifySync', () => {
 describe('cross-compatibility', () => {
   it('should verify async hash with sync verify', async () => {
     const plaintext = 'crossTest';
-    const hashString = await hash(plaintext);
+    const hashString = await hash({ plaintext });
     const isValid = verifySync({ hash: hashString, plaintext });
 
     expect(isValid).toBe(true);
@@ -239,7 +239,7 @@ describe('cross-compatibility', () => {
 
   it('should verify sync hash with async verify', async () => {
     const plaintext = 'crossTest';
-    const hashString = hashSync(plaintext);
+    const hashString = hashSync({ plaintext });
     const isValid = await verify({ hash: hashString, plaintext });
 
     expect(isValid).toBe(true);
@@ -248,8 +248,8 @@ describe('cross-compatibility', () => {
 
 describe('security properties', () => {
   it('should produce significantly different hashes for similar passwords', async () => {
-    const hash1 = await hash('password1');
-    const hash2 = await hash('password2');
+    const hash1 = await hash({ plaintext: 'password1' });
+    const hash2 = await hash({ plaintext: 'password2' });
 
     expect(hash1).not.toBe(hash2);
     // Even the salt part should be different
@@ -258,7 +258,7 @@ describe('security properties', () => {
 
   it('should verify with case sensitivity', async () => {
     const plaintext = 'CaseSensitive';
-    const hashString = await hash(plaintext);
+    const hashString = await hash({ plaintext });
 
     expect(await verify({ hash: hashString, plaintext: 'CaseSensitive' })).toBe(
       true
@@ -273,7 +273,7 @@ describe('security properties', () => {
 
   it('should handle whitespace sensitivity', async () => {
     const plaintext = ' password ';
-    const hashString = await hash(plaintext);
+    const hashString = await hash({ plaintext });
 
     expect(await verify({ hash: hashString, plaintext: ' password ' })).toBe(
       true

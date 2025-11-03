@@ -11,6 +11,21 @@ import { promisify } from 'util';
 const scryptAsync = promisify(scrypt);
 
 /**
+ * Valid key lengths for scrypt key derivation in bytes.
+ */
+export type KeyLength = 64 | 128 | 256 | 512 | 1024;
+
+function isValidKeyLength(length: number): length is KeyLength {
+  return (
+    length === 64 ||
+    length === 128 ||
+    length === 256 ||
+    length === 512 ||
+    length === 1024
+  );
+}
+
+/**
  * Synchronously derives a key from a plaintext password using scrypt.
  *
  * @param plaintext - The plaintext password to derive a key from
@@ -22,7 +37,7 @@ const scryptAsync = promisify(scrypt);
 function deriveKeySync(
   plaintext: string,
   salt: Buffer,
-  keyLen: number
+  keyLen: KeyLength
 ): Buffer {
   return scryptSync(plaintext, new Uint8Array(salt), keyLen);
 }
@@ -39,7 +54,7 @@ function deriveKeySync(
 async function deriveKey(
   plaintext: string,
   salt: Buffer,
-  keyLen: number
+  keyLen: KeyLength
 ): Promise<Buffer> {
   return (await scryptAsync(plaintext, new Uint8Array(salt), keyLen)) as Buffer;
 }
@@ -74,42 +89,64 @@ function deserialize(hash: string): { salt: Buffer; key: Buffer } | null {
 /**
  * Asynchronously hashes a plaintext password using scrypt.
  *
- * Generates a random 16-byte salt and derives a 64-byte key from the password.
+ * Generates a random 16-byte salt and derives a key from the password.
  * The result is a hexadecimal string containing both the salt and derived key.
  *
- * @param plaintext - The plaintext password to hash
+ * @param options - Hashing options
+ * @param options.plaintext - The plaintext password to hash
+ * @param options.keyLength - The length of the derived key in bytes (default: 64)
  * @returns A Promise that resolves to a hash string in the format "salt:key"
  *
  * @example
  * ```typescript
- * const hashString = await hash('mySecurePassword');
+ * const hashString = await hash({ plaintext: 'mySecurePassword' });
  * // Returns: "a1b2c3d4...:e5f6g7h8..."
+ *
+ * const hashString256 = await hash({ plaintext: 'mySecurePassword', keyLength: 256 });
+ * // Uses 256-byte key length
  * ```
  */
-export async function hash(plaintext: string): Promise<string> {
+export async function hash({
+  plaintext,
+  keyLength = 64,
+}: {
+  plaintext: string;
+  keyLength?: KeyLength;
+}): Promise<string> {
   const salt = randomBytes(16);
-  const key = await deriveKey(plaintext, salt, 64);
+  const key = await deriveKey(plaintext, salt, keyLength);
   return serialize(salt, key);
 }
 
 /**
  * Synchronously hashes a plaintext password using scrypt.
  *
- * Generates a random 16-byte salt and derives a 64-byte key from the password.
+ * Generates a random 16-byte salt and derives a key from the password.
  * The result is a hexadecimal string containing both the salt and derived key.
  *
- * @param plaintext - The plaintext password to hash
+ * @param options - Hashing options
+ * @param options.plaintext - The plaintext password to hash
+ * @param options.keyLength - The length of the derived key in bytes (default: 64)
  * @returns A hash string in the format "salt:key"
  *
  * @example
  * ```typescript
- * const hashString = hashSync('mySecurePassword');
+ * const hashString = hashSync({ plaintext: 'mySecurePassword' });
  * // Returns: "a1b2c3d4...:e5f6g7h8..."
+ *
+ * const hashString256 = hashSync({ plaintext: 'mySecurePassword', keyLength: 256 });
+ * // Uses 256-byte key length
  * ```
  */
-export function hashSync(plaintext: string): string {
+export function hashSync({
+  plaintext,
+  keyLength = 64,
+}: {
+  plaintext: string;
+  keyLength?: KeyLength;
+}): string {
   const salt = randomBytes(16);
-  const key = deriveKeySync(plaintext, salt, 64);
+  const key = deriveKeySync(plaintext, salt, keyLength);
   return serialize(salt, key);
 }
 
@@ -143,6 +180,7 @@ export async function verify({
 }): Promise<boolean> {
   const parsed = deserialize(hash);
   if (!parsed) return false;
+  if (!isValidKeyLength(parsed.key.length)) return false;
   const derived = await deriveKey(plaintext, parsed.salt, parsed.key.length);
   return timingSafeEqual(new Uint8Array(parsed.key), new Uint8Array(derived));
 }
@@ -177,6 +215,7 @@ export function verifySync({
 }): boolean {
   const parsed = deserialize(hash);
   if (!parsed) return false;
+  if (!isValidKeyLength(parsed.key.length)) return false;
   const derived = deriveKeySync(plaintext, parsed.salt, parsed.key.length);
   return timingSafeEqual(new Uint8Array(parsed.key), new Uint8Array(derived));
 }
