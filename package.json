@@ -1,56 +1,13 @@
 {
-  "name": "@rccyx/scrypt",
-  "version": "1.0.0",
-  "description": "Minimal, dependency-free password hashing library built on Node's native crypto.scrypt. Timing-safe, typed, and production-ready.",
   "author": {
-    "name": "@rccyx",
-    "email": "oss@rccyx.com"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rccyx/scrypt.git"
+    "email": "oss@rccyx.com",
+    "name": "@rccyx"
   },
   "bugs": {
     "url": "https://github.com/rccyx/scrypt/issues"
   },
-  "homepage": "https://github.com/rccyx/scrypt#readme",
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": ["dist/index.d.ts"]
-    }
-  },
-  "files": [
-    "dist/",
-    "README.md",
-    "LICENSE",
-    "package.json"
-  ],
-  "keywords": [
-    "scrypt",
-    "crypto",
-    "hash",
-    "password",
-    "security",
-    "encryption",
-    "typescript",
-    "nodejs"
-  ],
-  "scripts": {
-    "build": "pnpm build:node",
-    "build:node": "rimraf dist && rollup -c rollup.config.ts --configPlugin @rollup/plugin-typescript",
-    "test": "vitest --run --coverage",
-    "lint": "eslint . --ext .ts",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "prepare": "husky install",
-    "release": "semantic-release"
-  },
- "devDependencies": {
+  "description": "Minimal, dependency-free password hashing library built on Node's native crypto.scrypt. Timing-safe, typed, and production-ready.",
+  "devDependencies": {
     "@cspell/dict-cryptocurrencies": "5.0.0",
     "@rollup/plugin-replace": "5.0.5",
     "@rollup/plugin-typescript": "11.1.5",
@@ -99,12 +56,57 @@
     "vitest": "1.5.0",
     "zod": ">=3.0.0"
   },
-  "peerDependencies": {
-    "typescript": ">=5.0.0"
-  },
   "engines": {
     "node": ">=18.0.0"
   },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
+  "homepage": "https://github.com/rccyx/scrypt#readme",
+  "keywords": [
+    "scrypt",
+    "crypto",
+    "hash",
+    "password",
+    "security",
+    "encryption",
+    "typescript",
+    "nodejs"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "name": "@rccyx/scrypt",
   "packageManager": "pnpm@9.12.0",
-  "private": false
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rccyx/scrypt.git"
+  },
+  "scripts": {
+    "build": "pnpm build:node",
+    "build:node": "rimraf dist && rollup -c rollup.config.ts --configPlugin @rollup/plugin-typescript",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --ext .ts",
+    "prepare": "husky install",
+    "release": "semantic-release",
+    "test": "vitest --run --coverage"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts"
+      ]
+    }
+  },
+  "version": "1.0.1"
 }
