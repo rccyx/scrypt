@@ -70,4 +70,4 @@ Each hash is stored as a hexadecimal string in the format: **`salt:key`**
 
 ## License
 
-MIT
+[MIT](/LICENSE)
