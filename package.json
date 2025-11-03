@@ -4,7 +4,7 @@
     "name": "@rccyx"
   },
   "bugs": {
-    "url": "https://github.com/rccyx/envyx/issues"
+    "url": "https://github.com/rccyx/scrypt/issues"
   },
   "description": "Type-safe environment variable system for TypeScript. Validate, prefix, and expose envs.",
   "devDependencies": {
@@ -62,7 +62,7 @@
     "LICENSE",
     "README.md"
   ],
-  "homepage": "https://github.com/rccyx/envyx",
+  "homepage": "https://github.com/rccyx/scrypt",
   "keywords": [
     "env",
     "environment variables",
@@ -75,7 +75,7 @@
   "license": "MIT",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "name": "envyx",
+  "name": "@rccyx/scrypt",
   "packageManager": "pnpm@8.14.0",
   "peerDependencies": {
     "zod": ">=3.0.0"
@@ -83,7 +83,7 @@
   "private": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rccyx/envyx.git"
+    "url": "git+https://github.com/rccyx/scrypt.git"
   },
   "scripts": {
     "build": "pnpm run build:node",
