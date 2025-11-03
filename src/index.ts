@@ -64,7 +64,9 @@ function serialize(salt: Buffer, key: Buffer): string {
  * @internal
  */
 function deserialize(hash: string): { salt: Buffer; key: Buffer } | null {
-  const [saltHex, keyHex] = hash.split(':');
+  const parts = hash.split(':');
+  if (parts.length !== 2) return null;
+  const [saltHex, keyHex] = parts;
   if (!saltHex || !keyHex) return null;
   return { salt: Buffer.from(saltHex, 'hex'), key: Buffer.from(keyHex, 'hex') };
 }
@@ -142,10 +144,7 @@ export async function verify({
   const parsed = deserialize(hash);
   if (!parsed) return false;
   const derived = await deriveKey(plaintext, parsed.salt, parsed.key.length);
-  return timingSafeEqual(
-    new Uint8Array(parsed.key),
-    new Uint8Array(derived)
-  );
+  return timingSafeEqual(new Uint8Array(parsed.key), new Uint8Array(derived));
 }
 
 /**
@@ -179,8 +178,5 @@ export function verifySync({
   const parsed = deserialize(hash);
   if (!parsed) return false;
   const derived = deriveKeySync(plaintext, parsed.salt, parsed.key.length);
-  return timingSafeEqual(
-    new Uint8Array(parsed.key),
-    new Uint8Array(derived)
-  );
+  return timingSafeEqual(new Uint8Array(parsed.key), new Uint8Array(derived));
 }
