@@ -44,9 +44,9 @@ Each hash uses a random 16-byte salt and a default 64-byte derived key. You can 
 import { hashSync } from "@rccyx/scrypt";
 
 // Use a longer key for enhanced security
-const hashed = hashSync({ 
-  plaintext: "password123", 
-  keyLength: 256 
+const hashed = hashSync({
+  plaintext: "password123",
+  keyLength: 256
 });
 ```
 
@@ -140,6 +140,8 @@ Each hash is stored as `salt:key` in hexadecimal format, where:
 
 Example: `"a1b2c3d4e5f6...32chars...:e7f8g9h0...128chars..."`
 
-## license
 
-[MIT](/LICENSE)
+## License
+
+MIT © [@rccyx](https://rccyx.com)
+
